@@ -1,15 +1,15 @@
 var bigint = require("jsbn").BigInteger;
 var assert = require("assert");
-
+/* proof start */
 var P = 3,
     Q = 5,
     N = P * Q,
     G = 17;
-
+//转换bigint
 var bi = function (num) {
     return new bigint('' + num);
 };
-
+//返回a * b
 var product = function (A) {
     return A.reduce(function (a, b) { return a * b; });
 };
@@ -25,22 +25,27 @@ assert(C === 11);
 
 var S = product([11, 13]);
 assert(S === 143); // the product of all the remaining elements in U
-
+//G = 可信设置底数g
+//S = U的补集
+//N = 模数
 // given G and S (where N is publically known)
 var Proof = Number(bi('' + G).modPow(bi(S), bi(N)).toString());
 
 // Math.pow(G, S) % N; // mod(G^S, N)
 assert(Proof === 8);
+/* proof end */
 
-/*
-C' = mod(P^R, N)
-C' = 2
-*/ 
 
+/* 生成 witness start*/ 
+
+//欧拉函数：小于n且与n互素的数的个数 
+//φ（n） = φ (p) * φ (q) = (p-1)*(q-1) 
+//欧拉定理：任意互素的a，n，有a^φ(n) = 1(mod n)
+//由于g选取素数，所以g与φ(n)互素，所以可以将指数模n来减小指数
 var qminus1 = P - 1;
 var pminus1 = Q - 1;
 var totient = pminus1 * qminus1;
-
+//totient = （3-1）*（5-1）= 8
 var exp = G;
 
 [7, 11, 13].forEach(function (prime) {
@@ -56,11 +61,11 @@ var exp = G;
 assert(exp === 1);
 
 var primes = U;
-
+//计算每个U中素数元素prime的补 return G^x
 var witness1 = function (i) {
     var prime = bi(primes[i]);
     var inv = prime
-        .modInverse(bi(totient))
+        .modInverse(bi(totient))//模totient的逆
         .multiply(bi(exp))
         .mod(bi(totient));
     return Number((bi(G).modPow(inv, bi(N))).toString());
@@ -85,9 +90,9 @@ var wit2 = witness2(1);
 
 // G.modPow(7, N).modPow(13, N); // 8
 assert(wit2 === wit1);
+/* 生成 witness end */ 
 
-
-// verification
+/*  add remove  start */ 
 
 
 // factoring elements out...
@@ -108,7 +113,7 @@ var remove = function (C, _prime, totient) {
     var prime = bi(_prime);
     //var acc = bi(C);
     var tot = bi(totient);
-
+//是否应该 multiply(prime) => multiply(C)??
     var inv = prime
         .modInverse(tot)
         .multiply(prime)
@@ -144,5 +149,4 @@ var remove = function (C, _prime, totient) {
 });
 
 //assert(remove(C1, 13, totient) === 2);
-
-//【totient】:  在数论中，欧拉的 totient 函数计算直到给定整数 n 与 n 互质的正整数。 它使用希腊字母 phi 表示为 φ 或 φ，也可以称为欧拉 phi 函数。 换句话说，它是 1 ≤ k ≤ n 范围内最大公约数 gcd 等于 1 的整数 k 的数量。这种形式的整数 k 有时被称为 n 的总和。 例如，n=9 的总数是 1、2、4、5、7 和 8 六个数字。
+/*  add remove end  */ 
