@@ -145,4 +145,4 @@ var remove = function (C, _prime, totient) {
 
 //assert(remove(C1, 13, totient) === 2);
 
-
+//【totient】:  在数论中，欧拉的 totient 函数计算直到给定整数 n 与 n 互质的正整数。 它使用希腊字母 phi 表示为 φ 或 φ，也可以称为欧拉 phi 函数。 换句话说，它是 1 ≤ k ≤ n 范围内最大公约数 gcd 等于 1 的整数 k 的数量。这种形式的整数 k 有时被称为 n 的总和。 例如，n=9 的总数是 1、2、4、5、7 和 8 六个数字。
